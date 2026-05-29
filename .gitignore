@@ -1,0 +1,6 @@
+# Credenciais — NUNCA versionar
+.env
+
+# Dados brutos de exportação — não versionar
+*.xlsx
+*.csv

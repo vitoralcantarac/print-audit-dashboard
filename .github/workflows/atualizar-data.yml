@@ -1,0 +1,65 @@
+name: Atualizar data.json
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 00:00 horário de Brasília (UTC-3)
+  workflow_dispatch:        # permite rodar manualmente pelo GitHub
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruir data.json a partir do Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python3 - <<'EOF'
+          import os, json, urllib.request
+
+          url = os.environ['SUPABASE_URL']
+          key = os.environ['SUPABASE_SERVICE_KEY']
+          headers = {'apikey': key, 'Authorization': f'Bearer {key}'}
+
+          PAGE, offset, all_rows = 1000, 0, []
+          while True:
+              req = urllib.request.Request(
+                  f"{url}/rest/v1/impressoes?select=dt,mes,pages,impressora,dept,colorida&order=dt.asc,id.asc&limit={PAGE}&offset={offset}",
+                  headers=headers
+              )
+              with urllib.request.urlopen(req) as r:
+                  batch = json.loads(r.read())
+              all_rows.extend(batch)
+              print(f"offset={offset} — {len(batch)} registros (total: {len(all_rows)})")
+              if len(batch) < PAGE:
+                  break
+              offset += PAGE
+
+          datas  = sorted(r['dt'] for r in all_rows)
+          fmt    = lambda s: f"{s[8:10]}/{s[5:7]}/{s[0:4]}"
+          periodo = f"{fmt(datas[0])} – {fmt(datas[-1])}"
+
+          output = {'periodo': periodo, 'registros': len(all_rows), 'data': all_rows}
+          with open('data.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False, separators=(',', ':'))
+
+          print(f"\ndata.json reconstruído: {len(all_rows)} registros | {periodo}")
+          EOF
+
+      - name: Commit e push (somente se houver mudança)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "Nenhum dado novo. Nada a commitar."
+          else
+            REGISTROS=$(python3 -c "import json; d=json.load(open('data.json')); print(d['registros'])")
+            PERIODO=$(python3 -c "import json; d=json.load(open('data.json')); print(d['periodo'])")
+            git commit -m "Dashboard: atualização automática — ${PERIODO} (${REGISTROS} registros)"
+            git push
+          fi

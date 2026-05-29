@@ -1,0 +1,1477 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://feb-impressao.vitorcorrea805.workers.dev;">
+<title>Dashboard de Impressão</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" integrity="sha384-y49Zu59jZHJL/PLKgZPv3k2WI9c0Yp3pWB76V8OBVCb0QBKS8l4Ff3YslzHVX76Y" crossorigin="anonymous"></script>
+<style>
+:root{
+  --bg:#071a2e;--bg-card:#0d2540;--bg-hover:#122f50;
+  --border:#1a4060;--border2:#254d73;
+  --text:#ddeeff;--text2:#7aadcc;--text3:#3d7a9a;
+  --pri-blue:#0077B6;--pri-teal:#00B4D8;--pri-dark:#003D6B;--pri-light:#48CAE4;
+  --nav-w:196px;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--nav-w);
+  flex-shrink: 0;
+  background: var(--pri-dark);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  border-right: 1px solid #1a3a5c44;
+}
+.sb-logo {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid #1a4a6a33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #002d52;
+}
+.sb-logo svg {
+  width: 88px;
+  height: 93px;
+}
+.sb-org {
+  font-size: 9px;
+  font-weight: 700;
+  color: #90D4EE;
+  text-align: center;
+  letter-spacing: .5px;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.nav-sec {
+  padding: 12px 0 6px;
+  flex: 1;
+}
+.nav-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: #1e5878;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 0 15px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #7ab8d4;
+  font-size: 12px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.nav-item:hover {
+  background: #0a3055;
+  color: #90D4EE;
+}
+.nav-item.active {
+  background: #0d3460;
+  color: #48CAE4;
+  border-left-color: #48CAE4;
+  font-weight: 700;
+}
+.nav-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+.sb-foot {
+  padding: 10px 14px;
+  border-top: 1px solid #1a4a6a33;
+  font-size: 9px;
+  color: #1e5878;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* MAIN */
+.main {
+  margin-left: var(--nav-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* TOPBAR */
+.topbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.tb-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #0077B622;
+  color: #48CAE4;
+  border: 1px solid #0077B644;
+}
+.tb-sub {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.tb-stat {
+  font-size: 11px;
+  color: var(--text3);
+  text-align: right;
+}
+
+/* PAGES */
+.page {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+}
+.page.active {
+  display: flex;
+}
+.p-inner {
+  padding: 14px 20px;
+  flex: 1;
+}
+
+/* HOME */
+.home-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.home-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 52px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 60px rgba(0,90,122,.25);
+  min-width: 360px;
+  max-width: 540px;
+  width: 100%;
+}
+.home-box svg {
+  width: 170px;
+  height: 181px;
+}
+.home-org {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--pri-light);
+  letter-spacing: .3px;
+  text-align: center;
+  line-height: 1.3;
+  margin-top: 4px;
+}
+.home-dept {
+  font-size: 13px;
+  color: var(--text2);
+  text-align: center;
+}
+
+/* LEGEND BAR */
+.leg-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 7px 14px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  align-items: center;
+}
+.leg-lbl {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 700;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.leg-item:hover {
+  background: var(--bg-hover);
+  border-color: var(--border2);
+}
+.leg-item.sel {
+  background: #0d3460;
+  border-color: #48CAE4;
+  color: #48CAE4;
+  font-weight: 700;
+}
+.leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.leg-clr {
+  margin-left: auto;
+  font-size: 10px;
+  color: #f87171;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 6px;
+}
+
+/* FILTER BAR */
+.fbar {
+  display: none;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 11px;
+  padding: 7px 14px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid #1a5a7a;
+}
+.fbar-lbl {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #092f55;
+  color: #48CAE4;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #1a5090;
+}
+.chip button {
+  background: none;
+  border: none;
+  color: #48CAE4;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 0 0 2px;
+}
+.clr-all {
+  margin-left: auto;
+  font-size: 11px;
+  color: #f87171;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* KPI CARDS */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 11px;
+  margin-bottom: 14px;
+}
+.kpi {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.kpi.blue   { border-left-color: #0096C7; }
+.kpi.orange { border-left-color: #fb923c; }
+.kpi.green  { border-left-color: #34d399; }
+.kpi-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text3);
+  margin-bottom: 5px;
+}
+.kpi-val {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+}
+.kpi-sub {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 3px;
+}
+.kpi.blue   .kpi-val { color: #48CAE4; }
+.kpi.orange .kpi-val { color: #fb923c; }
+.kpi.green  .kpi-val { color: #34d399; }
+
+/* GRIDS / BOXES */
+.g3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 11px;
+  margin-bottom: 11px;
+}
+.box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+}
+.box.hi {
+  border-color: #0096C7;
+  box-shadow: 0 0 0 1px #0096C722;
+}
+.box h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b0d4e8;
+  margin-bottom: 2px;
+  padding-right: 60px;
+}
+.hint {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.chart-area {
+  position: relative;
+  width: 100%;
+}
+.clr-btn {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  font-size: 10px;
+  color: #f87171;
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: none;
+  font-weight: 700;
+}
+
+/* TOGGLE */
+.tgl-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.tgl {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tgl.on {
+  background: #0077B6;
+  border-color: #0096C7;
+  color: #fff;
+}
+
+/* TABLE */
+.tbl-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+.tbl-wrap h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b0d4e8;
+  margin-bottom: 9px;
+}
+.srch-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.srch-inp {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+.srch-inp:focus {
+  border-color: #0096C7;
+}
+.srch-inp::placeholder {
+  color: var(--text3);
+}
+.srch-cnt {
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+thead th {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #0d2235;
+  color: #b0d4e8;
+}
+tbody tr:last-child td {
+  border: none;
+}
+tbody tr:hover {
+  background: var(--bg-hover);
+}
+.bm {
+  height: 6px;
+  border-radius: 3px;
+  display: inline-block;
+  opacity: .75;
+  min-width: 2px;
+}
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.tc {
+  background: #7c2d1222;
+  color: #fb923c;
+  border: 1px solid #7c2d1244;
+}
+.tp {
+  background: #003D6B44;
+  color: #48CAE4;
+  border: 1px solid #0077B644;
+}
+.dept-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+footer {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text3);
+  padding: 10px 0 14px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+@media (max-width: 1100px) {
+  .g3     { grid-template-columns: 1fr 1fr; }
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .g3, .kpi-row { grid-template-columns: 1fr; }
+  .sidebar { width: 52px; }
+  .sb-logo svg { width: 36px; height: 38px; }
+  .sb-org, .sb-foot, .nav-lbl, .nav-item span:last-child { display: none; }
+  .main { margin-left: 52px; }
+}
+
+/* ===== LAYOUT RESPONSIVO SINGLE-PAGE — ADENDO v4 ===== */
+html, body { height: 100vh; overflow: hidden; }
+body { min-height: 0; }
+.sidebar { height: 100vh; }
+.main { height: 100vh; min-height: 0; overflow: hidden; }
+.topbar { flex-shrink: 0; padding: 7px 18px; }
+.tb-title { font-size: 13px; }
+.tb-sub { font-size: 9px; }
+footer { flex-shrink: 0; padding: 6px 16px; font-size: 10px; text-align: center; color: var(--text3); background: var(--bg-card); border-top: 1px solid var(--border); }
+.page { overflow: hidden; min-height: 0; height: calc(100vh - 70px); }
+.page.active { display: none; flex-direction: column; }
+.page.active { display: flex; }
+.p-inner { padding: 10px 18px; flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* HOME */
+#page-home .home-wrap { padding: 16px; min-height: 0; }
+#page-home .home-box { padding: 32px 48px; min-width: 320px; max-width: 480px; }
+#page-home .home-box img { width: 120px !important; margin-bottom: 12px !important; }
+#page-home .home-org { font-size: 18px; }
+
+/* INDICADORES (Cartões) */
+#page-indicadores .p-inner { justify-content: flex-start; }
+#page-indicadores .kpi-row { grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 0; flex: 1 1 auto; min-height: 0; max-height: none; align-items: stretch; }
+#page-indicadores .kpi { display: flex; flex-direction: column; justify-content: center; padding: 24px 22px; }
+#page-indicadores .kpi-lbl { font-size: 11px; }
+#page-indicadores .kpi-val { font-size: 38px; }
+#page-indicadores .kpi-sub { font-size: 11px; margin-top: 6px; }
+
+/* GRÁFICOS — scroll permitido */
+#page-graficos .p-inner { gap: 0; overflow-y: auto; overflow-x: hidden; }
+#page-graficos .g3 { flex: 0 0 auto; margin-bottom: 0; gap: 10px; }
+#page-graficos .box { display: flex; flex-direction: column; padding: 12px 14px; min-height: 300px; }
+#page-graficos .box h3 { font-size: 11px; margin-bottom: 1px; }
+#page-graficos .box .hint { font-size: 9px; margin-bottom: 6px; }
+#page-graficos .chart-area { flex: 1 1 auto; min-height: 0 !important; height: auto !important; }
+#page-graficos #bHeat { min-height: 220px; }
+#page-graficos #bPro .chart-area { flex: 0 0 auto; height: 38% !important; }
+#page-graficos #bPro > div:last-child { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+#page-graficos #bPro > div:last-child .chart-area { flex: 1 1 auto; min-height: 0 !important; height: auto !important; }
+
+/* EVOLUÇÃO */
+#page-evolucao .p-inner { gap: 0; }
+#page-evolucao .box { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+#page-evolucao .chart-area { flex: 1 1 auto; min-height: 0 !important; height: auto !important; }
+#page-evolucao .tgl-row { flex-shrink: 0; }
+
+/* IMPRESSORAS — única página com SCROLL VERTICAL permitido */
+#page-impressoras { overflow: hidden; }
+#page-impressoras .p-inner { overflow-y: auto; overflow-x: hidden; }
+#page-impressoras .tbl-wrap { overflow: visible; }
+
+/* Compactação geral nas barras de legenda/filtro */
+.leg-bar { padding: 6px 12px; margin-bottom: 8px; }
+.fbar { padding: 6px 12px; margin-bottom: 8px; }
+
+/* DATE RANGE FILTER */
+.dt-range { display:flex; align-items:center; gap:5px; }
+.dt-lbl { font-size:10px; color:var(--text3); white-space:nowrap; }
+.dt-inp {
+  background:var(--bg); border:1px solid var(--border); border-radius:5px;
+  padding:4px 7px; color:var(--text); font-size:11px; outline:none; cursor:pointer;
+}
+.dt-inp:focus { border-color:#0096C7; }
+.dt-inp::-webkit-calendar-picker-indicator { filter:invert(0.6); cursor:pointer; }
+
+</style>
+
+<style>
+/* ====== REGRAS ABSOLUTAS PARA A PÁGINA CARTÕES ====== */
+#page-indicadores {
+    display: none; 
+}
+#page-indicadores.active {
+    display: flex !important;
+    flex-direction: column !important;
+}
+#page-indicadores .p-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+}
+#page-indicadores .kpi-row {
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+    align-content: stretch !important;
+    gap: 14px !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
+#page-indicadores .kpi {
+    flex: 1 1 30% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    border-radius: 16px !important;
+    border-left-width: 5px !important;
+}
+#page-indicadores .kpi-lbl {
+    font-size: 15px !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 10px !important;
+}
+#page-indicadores .kpi-val {
+    font-size: 54px !important;
+    line-height: 1 !important;
+}
+#page-indicadores .kpi-sub {
+    font-size: 12px !important;
+    margin-top: 8px !important;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+<svg viewBox="0 0 80 80" style="width:60px;height:60px;display:block;margin:0 auto" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="28" width="56" height="32" rx="6" fill="#0077B6"/><rect x="20" y="44" width="40" height="14" rx="3" fill="#071a2e"/><rect x="20" y="10" width="40" height="22" rx="3" fill="#00B4D8"/><circle cx="58" cy="38" r="4" fill="#48CAE4"/></svg>
+    <div class="sb-org">Print<br>Audit</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Navegação</div>
+    <div class="nav-item active" data-page="home"        onclick="showPage('home')"><span class="nav-icon">🏠</span><span>Início</span></div>
+    <div class="nav-item"        data-page="indicadores" onclick="showPage('indicadores')"><span class="nav-icon">📊</span><span>Cartões</span></div>
+    <div class="nav-item"        data-page="graficos"    onclick="showPage('graficos')"><span class="nav-icon">📈</span><span>Gráficos</span></div>
+    <div class="nav-item"        data-page="evolucao"    onclick="showPage('evolucao')"><span class="nav-icon">📉</span><span>Evolução</span></div>
+    <div class="nav-item"        data-page="impressoras" onclick="showPage('impressoras')"><span class="nav-icon">🖨️</span><span>Impressoras</span></div>
+  </div>
+  <div class="sb-foot">Dashboard de Impressão<br>Consolidado v3 · 2026</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title">Dashboard de Impressão <span class="badge">v3</span></div>
+      <div class="tb-sub">Carregando dados...</div>
+    </div>
+    <div class="dt-range">
+      <span class="dt-lbl">De</span>
+      <input class="dt-inp" type="date" id="dtIni" onchange="setDt('dtIni',this.value)">
+      <span class="dt-lbl">Até</span>
+      <input class="dt-inp" type="date" id="dtFim" onchange="setDt('dtFim',this.value)">
+      <button class="tgl" id="dtClrBtn" onclick="clearDt()" style="display:none;font-size:10px">Limpar ×</button>
+    </div>
+    <div class="tb-stat" id="hdrSt"></div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="home-wrap">
+      <div class="home-box">
+<svg viewBox="0 0 120 120" style="width:120px;height:120px;margin-bottom:20px" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="42" width="84" height="48" rx="9" fill="#0077B6"/><rect x="30" y="66" width="60" height="21" rx="4.5" fill="#071a2e"/><rect x="30" y="15" width="60" height="33" rx="4.5" fill="#00B4D8"/><circle cx="87" cy="57" r="6" fill="#48CAE4"/></svg>
+        <div class="home-org">Dashboard de Impressão</div>
+        <div class="home-dept">Auditoria · Análise · Controle</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTÕES — apenas os 5 KPI cards -->
+  <div class="page" id="page-indicadores">
+    <div class="p-inner">
+      <div class="leg-bar" id="leg-indicadores"><span class="leg-lbl">DEPARTAMENTOS:</span></div>
+      <div class="fbar" id="fbar-indicadores"><span class="fbar-lbl">Filtros ativos:</span><div id="chips-indicadores"></div><button class="clr-all" onclick="clearAll()">Limpar tudo ×</button></div>
+      <div class="kpi-row">
+        <div class="kpi blue">  <div class="kpi-lbl">Total páginas</div><div class="kpi-val" id="kT">—</div><div class="kpi-sub" id="kTS">&nbsp;</div></div>
+        <div class="kpi">       <div class="kpi-lbl">Preto &amp; Branco</div><div class="kpi-val" id="kPB">—</div><div class="kpi-sub" id="kPBS">&nbsp;</div></div>
+        <div class="kpi orange"><div class="kpi-lbl">Coloridas</div><div class="kpi-val" id="kCL">—</div><div class="kpi-sub" id="kCLS">&nbsp;</div></div>
+        <div class="kpi green"> <div class="kpi-lbl">Registros</div><div class="kpi-val" id="kRG">—</div><div class="kpi-sub" id="kRGS">&nbsp;</div></div>
+        <div class="kpi">       <div class="kpi-lbl">Média / dia</div><div class="kpi-val" id="kMD">—</div><div class="kpi-sub">páginas por dia</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="page" id="page-graficos">
+    <div class="p-inner">
+      <div class="leg-bar" id="leg-graficos"><span class="leg-lbl">DEPARTAMENTOS:</span></div>
+      <div class="fbar" id="fbar-graficos"><span class="fbar-lbl">Filtros ativos:</span><div id="chips-graficos"></div><button class="clr-all" onclick="clearAll()">Limpar tudo ×</button></div>
+      <div class="g3">
+        <div class="box" id="bImp">
+          <h3>Páginas por impressora</h3><div class="hint">Cores por departamento · clique para filtrar</div>
+          <button class="clr-btn" id="clImp" onclick="clr('imp')">Limpar ×</button>
+          <div class="chart-area" style="height:360px"><canvas id="cImp"></canvas></div>
+        </div>
+        <div class="box" id="bDep">
+          <h3>Páginas por departamento</h3><div class="hint">Clique para filtrar</div>
+          <button class="clr-btn" id="clDep" onclick="clr('dep')">Limpar ×</button>
+          <div class="chart-area" style="height:360px"><canvas id="cDep"></canvas></div>
+        </div>
+        <div class="box" id="bPro">
+          <h3>P&amp;B vs. Colorida</h3><div class="hint">Clique para filtrar por tipo</div>
+          <button class="clr-btn" id="clPro" onclick="clr('tip')">Limpar ×</button>
+          <div class="chart-area" style="height:190px"><canvas id="cPro"></canvas></div>
+          <div style="margin-top:14px">
+            <h3 style="color:var(--text2)">Coloridas por impressora</h3>
+            <div class="hint">Clique para filtrar</div>
+            <button class="clr-btn" id="clCol" onclick="clr('cim')" style="top:auto;bottom:8px">Limpar ×</button>
+            <div class="chart-area" style="height:110px"><canvas id="cCol"></canvas></div>
+          </div>
+        </div>
+        <div class="box" id="bHeat" style="grid-column:1/-1;padding:8px 14px">
+          <h3 style="margin-bottom:2px">Média de páginas por dia da semana</h3>
+          <div class="chart-area" style="flex:1 1 auto;min-height:0"><canvas id="cHeat"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVOLUÇÃO -->
+  <div class="page" id="page-evolucao">
+    <div class="p-inner">
+      <div class="leg-bar" id="leg-evolucao"><span class="leg-lbl">DEPARTAMENTOS:</span></div>
+      <div class="fbar" id="fbar-evolucao"><span class="fbar-lbl">Filtros ativos:</span><div id="chips-evolucao"></div><button class="clr-all" onclick="clearAll()">Limpar tudo ×</button></div>
+      <div class="box" id="bTmp">
+        <h3>Evolução de impressões</h3>
+        <div class="hint">Clique em ponto/barra para filtrar · alterne a visualização abaixo</div>
+        <button class="clr-btn" id="clTmp" onclick="clrTmp()">Limpar ×</button>
+        <div class="tgl-row">
+          <button class="tgl on" id="tglD" onclick="switchView('dia')">Por dia</button>
+          <button class="tgl"    id="tglM" onclick="switchView('mes')">Por mês</button>
+        </div>
+        <div class="chart-area" style="height:320px"><canvas id="cTmp"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPRESSORAS -->
+  <div class="page" id="page-impressoras">
+    <div class="p-inner">
+      <div class="leg-bar" id="leg-impressoras"><span class="leg-lbl">DEPARTAMENTOS:</span></div>
+      <div class="fbar" id="fbar-impressoras"><span class="fbar-lbl">Filtros ativos:</span><div id="chips-impressoras"></div><button class="clr-all" onclick="clearAll()">Limpar tudo ×</button></div>
+      <div class="tbl-wrap">
+        <h3>Detalhamento por impressora</h3>
+        <div class="srch-row">
+          <input class="srch-inp" id="searchInp" type="text" placeholder="Buscar impressora, departamento ou tipo..." oninput="rTbl()">
+          <button class="tgl" onclick="exportCSV()" title="Exportar registros filtrados">⬇ CSV</button>
+          <span class="srch-cnt" id="searchCnt"></span>
+        </div>
+        <table>
+          <thead><tr>
+            <th onclick="st(0)">Impressora</th>
+            <th onclick="st(1)">Departamento</th>
+            <th onclick="st(2)">Tipo</th>
+            <th onclick="st(3)">Páginas ↕</th>
+            <th onclick="st(4)">Registros</th>
+            <th style="min-width:90px">Volume</th>
+          </tr></thead>
+          <tbody id="tbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>Dashboard de Impressão v3</footer>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+let RAW = [];
+
+// Escape de HTML para uso seguro em innerHTML
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── PALETA ────────────────────────────────────────────────────────────────────
+var DEPT_ORDER = ['Presidência','Financeiro','Editora','RH','Livraria','DAS','Patrimônio do Livro','Biblioteca','Jurídico','Expedição'];
+var DEPT_COLORS = {
+  'Presidência':'#60a5fa','Financeiro':'#34d399','Editora':'#a78bfa','RH':'#fb923c',
+  'Livraria':'#f472b6','DAS':'#22d3ee','Patrimônio do Livro':'#fbbf24',
+  'Biblioteca':'#86efac','Jurídico':'#f87171','Expedição':'#818cf8'
+};
+var IMP_DEPT = {
+  'Brother MFC-8480DN - Secretaria da Presidência':'Presidência',
+  'EPSON L1455 - Secretaria da Presidência - Colorida':'Presidência',
+  'Brother MFC-8480DN - Financeiro':'Financeiro',
+  'Brother DCP-8157DN - Editora':'Editora',
+  'KONICA MINOLTA bizhub C284e - Editora':'Editora',
+  'Brother DCP-8080DN - RH':'RH',
+  'Brother MFC-8480DN - Livraria':'Livraria',
+  'Brother MFC-8480DN - DAS':'DAS',
+  'Brother DCP-L5652DN - Patrimônio do Livro':'Patrimônio do Livro',
+  'Brother DCP-8485DN - Biblioteca':'Biblioteca',
+  'EPSON L605 Series - Juridico':'Jurídico',
+  'RICOH SP 3710DN - Jurídico':'Jurídico',
+  'Brother DCP-L5652DN Printer - Expedição 1':'Expedição',
+  'Brother DCP-L5652DN Printer - Expedição 2':'Expedição',
+  'Brother Impressora Presidencia':'Presidência',
+  'EPSON L1455 Series Presidencia':'Presidência'
+};
+function dc(d,a){a=a||'cc';return (DEPT_COLORS[d]||'#94a3b8')+a;}
+function ic(i,a){return dc(IMP_DEPT[i]||'',a);}
+
+// ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
+var CURRENT = 'home';
+function showPage(page) {
+  CURRENT = page;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  var el = document.getElementById('page-'+page);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var ni = document.querySelector('[data-page="'+page+'"]');
+  if(ni) ni.classList.add('active');
+  if(page==='home') return;
+  buildLeg(page);
+  renderFbar(page);
+  if(page==='indicadores')   { rKPI(); }
+  else if(page==='graficos')  { rImp(); rDep(); rPro(); rCol(); rHeat(); }
+  else if(page==='evolucao')  { rTmp(); }
+  else if(page==='impressoras'){ rTbl(); }
+}
+
+// ── FILTRO — estado ───────────────────────────────────────────────────────────
+// F.dep é ARRAY para seleção múltipla acumulativa
+var F = {imp:null, dep:[], dia:null, mes:null, tip:null, cim:null, dtIni:null, dtFim:null};
+var TS = {c:3, d:-1};
+var CH = {};
+var VIEW = 'dia';
+
+var fmt = function(n){return Math.round(n).toLocaleString('pt-BR');};
+var hasF = function(){
+  return F.imp!==null || F.dep.length>0 || F.dia!==null ||
+         F.mes!==null || F.tip!==null   || F.cim!==null ||
+         F.dtIni!==null || F.dtFim!==null;
+};
+var shortI = function(s){
+  return s.replace('Brother ','').replace(' Printer','')
+          .replace('KONICA MINOLTA bizhub ','KM ')
+          .replace(' Series','').replace('EPSON ','EP ');
+};
+
+var scaleOpts = {
+  grid:{color:'#0f2233'},
+  ticks:{color:'#3d7a9a',font:{size:10}},
+  border:{color:'#1a4060'}
+};
+var ttOpts = {backgroundColor:'#0d2540',titleColor:'#7aadcc',bodyColor:'#b0d4e8',borderColor:'#1a4060',borderWidth:1};
+
+// ── FILTROS — lógica ──────────────────────────────────────────────────────────
+function fi(data, ov) {
+  var f = Object.assign({}, F, ov||{});
+  // ov.dep pode sobrescrever com [] para ignorar filtro de dep (ex: no gráfico de dep)
+  return data.filter(function(r){
+    if(f.imp && r.impressora!==f.imp) return false;
+    if(f.dep && f.dep.length>0 && f.dep.indexOf(r.dept)===-1) return false;
+    if(f.dia && r.dt!==f.dia) return false;
+    if(f.mes && r.mes!==f.mes) return false;
+    if(f.tip==='Colorida' && !r.colorida) return false;
+    if(f.tip==='P&B' && r.colorida) return false;
+    if(f.cim && r.impressora!==f.cim) return false;
+    if(f.dtIni && r.dt < f.dtIni) return false;
+    if(f.dtFim && r.dt > f.dtFim) return false;
+    return true;
+  });
+}
+function grp(data, key) {
+  var m = {};
+  data.forEach(function(r){m[r[key]]=(m[r[key]]||0)+(r.pages||0);});
+  return m;
+}
+function mk(id, cfg) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(CH[id]) CH[id].destroy();
+  CH[id] = new Chart(el.getContext('2d'), cfg);
+}
+function dlH() {
+  return {display:true,anchor:'end',align:'end',color:'#7aadcc',
+          font:{size:9,weight:'600'},formatter:function(v){return v>0?fmt(v):'';},
+          clip:false,offset:4};
+}
+
+// dep faded: um registro fica esmaecido se há seleção e ele NÃO está incluído
+function depFaded(d){ return F.dep.length>0 && F.dep.indexOf(d)===-1; }
+
+// ── GRÁFICO: IMPRESSORA ───────────────────────────────────────────────────────
+function rImp(){
+  var base = fi(RAW,{imp:null});
+  var m = grp(base,'impressora');
+  var all = Object.keys(grp(RAW,'impressora'));
+  var ks = all.sort(function(a,b){return (m[b]||0)-(m[a]||0);});
+  mk('cImp',{
+    type:'bar',
+    data:{labels:ks.map(shortI),datasets:[{label:'Págs',data:ks.map(function(k){return m[k]||0;}),
+      backgroundColor:ks.map(function(k){return ic(k,(F.imp&&F.imp!==k)||depFaded(IMP_DEPT[k])?'22':'bb');}),
+      borderColor:ks.map(function(k){return ic(k,(F.imp&&F.imp!==k)||depFaded(IMP_DEPT[k])?'44':'ff');}),
+      borderWidth:1,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:55}},
+      onClick:function(_,e){if(!e.length)return;toggle('imp',ks[e[0].index]);},
+      plugins:{legend:{display:false},
+        tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){return ' '+fmt(c.parsed.x)+' págs';}}}),
+        datalabels:dlH()},
+      scales:{x:Object.assign({},scaleOpts,{beginAtZero:true,ticks:Object.assign({},scaleOpts.ticks,{callback:fmt})}),y:scaleOpts}}
+  });
+}
+
+// ── GRÁFICO: DEPARTAMENTO ─────────────────────────────────────────────────────
+function rDep(){
+  // Passa dep:[] para ignorar filtro de dep neste gráfico (mostra todos, mas esmaece)
+  var base = fi(RAW,{dep:[]});
+  var m = grp(base,'dept');
+  var ks = DEPT_ORDER.filter(function(d){return m[d]!==undefined;});
+  mk('cDep',{
+    type:'bar',
+    data:{labels:ks,datasets:[{label:'Págs',data:ks.map(function(k){return m[k]||0;}),
+      backgroundColor:ks.map(function(k){return dc(k,depFaded(k)?'22':'bb');}),
+      borderColor:ks.map(function(k){return dc(k,depFaded(k)?'44':'ff');}),
+      borderWidth:1,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:55}},
+      onClick:function(_,e){if(!e.length)return;toggleDep(ks[e[0].index]);},
+      plugins:{legend:{display:false},
+        tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){return ' '+fmt(c.parsed.x)+' págs';}}}),
+        datalabels:dlH()},
+      scales:{x:Object.assign({},scaleOpts,{beginAtZero:true,ticks:Object.assign({},scaleOpts.ticks,{callback:fmt})}),y:scaleOpts}}
+  });
+}
+
+// ── GRÁFICO: P&B vs COLORIDA (rosca) ─────────────────────────────────────────
+function rPro(){
+  var d = fi(RAW);
+  var pb = d.filter(function(r){return !r.colorida;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  var cl = d.filter(function(r){return r.colorida;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  mk('cPro',{
+    type:'doughnut',
+    data:{labels:['P&B','Colorida'],datasets:[{data:[pb,cl],
+      backgroundColor:[F.tip==='Colorida'?'#48CAE422':'#48CAE4cc',F.tip==='P&B'?'#fb923c22':'#fb923ccc'],
+      borderColor:'#071a2e',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      onClick:function(_,e){if(!e.length)return;var t=['P&B','Colorida'][e[0].index];toggle('tip',t);},
+      plugins:{
+        legend:{position:'bottom',labels:{usePointStyle:true,padding:14,font:{size:11},color:'#7aadcc'}},
+        tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){
+          var tot=c.dataset.data.reduce(function(a,b){return a+b;},0);
+          return tot>0?' '+c.label+': '+fmt(c.parsed)+' ('+((c.parsed/tot)*100).toFixed(1)+'%)':'0';
+        }}}),
+        datalabels:{display:true,color:'#fff',font:{size:11,weight:'700'},
+          formatter:function(v,ctx){
+            var tot=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+            return tot>0?((v/tot)*100).toFixed(1)+'%':'';
+          }}
+      }}
+  });
+}
+
+// ── GRÁFICO: COLORIDAS POR IMPRESSORA ────────────────────────────────────────
+function rCol(){
+  var base = fi(RAW,{cim:null,tip:null}).filter(function(r){return r.colorida;});
+  var m = grp(base,'impressora');
+  var ks = Object.keys(m).sort(function(a,b){return m[b]-m[a];});
+  mk('cCol',{
+    type:'bar',
+    data:{labels:ks.map(shortI),datasets:[{label:'Coloridas',data:ks.map(function(k){return m[k];}),
+      backgroundColor:ks.map(function(k){return ic(k,F.cim?(k===F.cim?'cc':'22'):'cc');}),
+      borderColor:ks.map(function(k){return ic(k,'ff');}),
+      borderWidth:1,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:50}},
+      onClick:function(_,e){if(!e.length)return;toggle('cim',ks[e[0].index]);},
+      plugins:{legend:{display:false},
+        tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){return ' '+fmt(c.parsed.x)+' págs';}}}),
+        datalabels:dlH()},
+      scales:{x:Object.assign({},scaleOpts,{beginAtZero:true,ticks:Object.assign({},scaleOpts.ticks,{callback:fmt})}),y:scaleOpts}}
+  });
+}
+
+// ── GRÁFICO: EVOLUÇÃO TEMPORAL ────────────────────────────────────────────────
+function switchView(v){
+  VIEW=v;
+  document.getElementById('tglD').className='tgl'+(v==='dia'?' on':'');
+  document.getElementById('tglM').className='tgl'+(v==='mes'?' on':'');
+  rTmp();
+}
+function clrTmp(){F.dia=null;F.mes=null;ra();}
+function rTmp(){
+  if(VIEW==='dia'){
+    var base = fi(RAW,{dia:null});
+    var allD = [].concat([]).concat(Array.from(new Set(RAW.map(function(r){return r.dt;}))).sort());
+    var m = grp(base,'dt');
+    var cumul=[]; var run=0;
+    allD.forEach(function(d){run+=(m[d]||0);cumul.push(run);});
+    mk('cTmp',{type:'line',
+      data:{labels:allD.map(function(d){return d.slice(8)+'/'+d.slice(5,7);}),
+        datasets:[
+          {label:'Páginas/dia',data:allD.map(function(d){return m[d]||0;}),
+            borderColor:'#0096C7',
+            backgroundColor:allD.map(function(d){return F.dia?(d===F.dia?'#0096C722':'#0096C705'):'#0096C718';}),
+            borderWidth:2,fill:true,tension:0.3,
+            pointRadius:allD.map(function(d){return F.dia&&d===F.dia?8:4;}),
+            pointBackgroundColor:allD.map(function(d){return F.dia&&d===F.dia?'#48CAE4':'#0096C788';}),
+            pointBorderColor:'transparent',pointHoverRadius:8,
+            datalabels:{display:false}},
+          {label:'Acumulado',data:cumul,
+            borderColor:'#34d39955',backgroundColor:'transparent',
+            borderWidth:1.5,borderDash:[5,4],fill:false,tension:0.3,
+            pointRadius:0,pointHoverRadius:4,yAxisID:'yR',
+            datalabels:{display:false}}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        onClick:function(_,e){if(!e.length)return;toggle('dia',allD[e[0].index]);},
+        plugins:{
+          legend:{display:true,position:'bottom',labels:{usePointStyle:true,padding:14,font:{size:10},color:'#7aadcc',
+            filter:function(item){return item.datasetIndex===1;}}},
+          tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){
+            return c.datasetIndex===0?' '+fmt(c.parsed.y)+' páginas/dia':' '+fmt(c.parsed.y)+' acumulado';
+          }}}),
+          datalabels:{display:false}},
+        scales:{
+          x:Object.assign({},scaleOpts,{grid:{display:false}}),
+          y:Object.assign({},scaleOpts,{beginAtZero:true,ticks:Object.assign({},scaleOpts.ticks,{callback:fmt})}),
+          yR:{type:'linear',position:'right',grid:{display:false},border:{color:'transparent'},
+            ticks:{color:'#34d39966',font:{size:9},callback:fmt}}}}
+    });
+  } else {
+    var base2 = fi(RAW,{mes:null});
+    var allM = Array.from(new Set(RAW.map(function(r){return r.mes;}))).sort(function(a,b){
+      var pa=a.split('/'), pb2=b.split('/');
+      return new Date(pa[1],pa[0]-1)-new Date(pb2[1],pb2[0]-1);
+    });
+    var m2 = grp(base2,'mes');
+    var nms = {'04/2026':'Abril 2026','05/2026':'Maio 2026'};
+    mk('cTmp',{type:'bar',
+      data:{labels:allM.map(function(k){return nms[k]||k;}),
+        datasets:[{label:'Páginas',data:allM.map(function(k){return m2[k]||0;}),
+          backgroundColor:allM.map(function(k){return F.mes?(k===F.mes?'#0096C7cc':'#0096C722'):'#0096C7cc';}),
+          borderColor:'#48CAE4',borderWidth:1,borderRadius:8}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        onClick:function(_,e){if(!e.length)return;toggle('mes',allM[e[0].index]);},
+        plugins:{legend:{display:false},
+          tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){return ' '+fmt(c.parsed.y)+' páginas';}}}),
+          datalabels:{display:true,anchor:'end',align:'top',color:'#7aadcc',font:{size:12,weight:'700'},formatter:fmt}},
+        scales:{x:Object.assign({},scaleOpts,{grid:{display:false}}),
+          y:Object.assign({},scaleOpts,{beginAtZero:true,ticks:Object.assign({},scaleOpts.ticks,{callback:fmt})})}}
+    });
+  }
+  var cb=document.getElementById('clTmp');
+  if(cb) cb.style.display=!!(F.dia||F.mes)?'block':'none';
+  var bt=document.getElementById('bTmp');
+  if(bt) bt.classList.toggle('hi',!!(F.dia||F.mes));
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function rKPI(){
+  var d = fi(RAW);
+  var tot = d.reduce(function(s,r){return s+(r.pages||0);},0);
+  var pb  = d.filter(function(r){return !r.colorida;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  var cl  = d.filter(function(r){return r.colorida;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  var dias = (function(){var s=new Set();d.forEach(function(r){s.add(r.dt);});return s.size;})();
+  var totG = RAW.reduce(function(s,r){return s+(r.pages||0);},0);
+  // Tendência semana-a-semana (baseada em RAW, independente de filtros)
+  var rawDts=Array.from(new Set(RAW.map(function(r){return r.dt;}))).sort();
+  var last7=rawDts.slice(-7), prev7=rawDts.slice(-14,-7);
+  var pLast=RAW.filter(function(r){return last7.indexOf(r.dt)!==-1;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  var pPrev=RAW.filter(function(r){return prev7.indexOf(r.dt)!==-1;}).reduce(function(s,r){return s+(r.pages||0);},0);
+  var trend=pPrev>0?Math.round((pLast-pPrev)/pPrev*100):0;
+  var trendStr=prev7.length>0?' · '+(trend>=0?'↑':'↓')+Math.abs(trend)+'% sem. ant.':'';
+  document.getElementById('kT').textContent=fmt(tot);
+  document.getElementById('kTS').textContent=hasF()?(tot/totG*100).toFixed(1)+'% do total':'abr – mai 2026'+trendStr;
+  document.getElementById('kPB').textContent=fmt(pb);
+  document.getElementById('kPBS').textContent=tot>0?(pb/tot*100).toFixed(1)+'% do filtrado':'—';
+  document.getElementById('kCL').textContent=fmt(cl);
+  document.getElementById('kCLS').textContent=tot>0?(cl/tot*100).toFixed(1)+'% do filtrado':'—';
+  document.getElementById('kRG').textContent=fmt(d.length);
+  document.getElementById('kRGS').textContent='de '+fmt(RAW.length)+' total';
+  document.getElementById('kMD').textContent=dias>0?fmt(Math.round(tot/dias)):'—';
+  updateHdrSt();
+}
+
+function updateHdrSt(){
+  var hdr=document.getElementById('hdrSt');
+  if(!hdr) return;
+  if(hasF()){
+    var d=fi(RAW), tot=d.reduce(function(s,r){return s+(r.pages||0);},0);
+    hdr.textContent='Filtrado: '+fmt(d.length)+' reg · '+fmt(tot)+' págs';
+  } else {
+    var totG=RAW.reduce(function(s,r){return s+(r.pages||0);},0);
+    hdr.textContent=fmt(RAW.length)+' registros · '+fmt(totG)+' págs';
+  }
+}
+
+// ── TABELA ─────────────────────────────────────────────────────────────────────
+function rTbl(){
+  var d = fi(RAW);
+  var si = document.getElementById('searchInp');
+  var q = si?(si.value||'').toLowerCase().trim():'';
+  var mp={},mc={},mco={},mde={};
+  d.forEach(function(r){
+    mp[r.impressora]=(mp[r.impressora]||0)+(r.pages||0);
+    mc[r.impressora]=(mc[r.impressora]||0)+1;
+    if(r.colorida) mco[r.impressora]=true;
+    mde[r.impressora]=r.dept;
+  });
+  var rows=Object.keys(mp).map(function(k){
+    return {imp:k,dep:mde[k]||'',tip:mco[k]?'Colorida':'P&B',pag:mp[k],cnt:mc[k]};
+  });
+  if(q) rows=rows.filter(function(r){
+    return r.imp.toLowerCase().indexOf(q)!==-1||r.dep.toLowerCase().indexOf(q)!==-1||r.tip.toLowerCase().indexOf(q)!==-1;
+  });
+  var maxP=Math.max.apply(null,rows.map(function(r){return r.pag;}).concat([1]));
+  var cols=['imp','dep','tip','pag','cnt'];
+  rows.sort(function(a,b){var av=a[cols[TS.c]],bv=b[cols[TS.c]];return av<bv?TS.d:av>bv?-TS.d:0;});
+  var cnt=document.getElementById('searchCnt');
+  if(cnt) cnt.textContent=rows.length+' impressora'+(rows.length!==1?'s':'');
+  var tbl=document.getElementById('tbl');
+  if(!tbl) return;
+  tbl.innerHTML=rows.map(function(r){
+    var dot=DEPT_COLORS[r.dep]||'#3d7a9a';
+    return '<tr>'
+      +'<td style="font-size:11px"><span class="dept-dot" style="background:'+dot+'"></span>'+esc(r.imp)+'</td>'
+      +'<td style="color:#7aadcc">'+esc(r.dep)+'</td>'
+      +'<td><span class="tag '+(r.tip==='Colorida'?'tc':'tp')+'">'+r.tip+'</span></td>'
+      +'<td><strong style="color:#ddeeff">'+fmt(r.pag)+'</strong></td>'
+      +'<td style="color:#3d7a9a">'+fmt(r.cnt)+'</td>'
+      +'<td><span class="bm" style="width:'+Math.round((r.pag/maxP)*86)+'px;background:'+dot+'"></span></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── LEGENDA (seleção múltipla) ────────────────────────────────────────────────
+function buildLeg(page){
+  var bar=document.getElementById('leg-'+page);
+  if(!bar) return;
+  var html='<span class="leg-lbl">DEPARTAMENTOS:</span>';
+  DEPT_ORDER.forEach(function(d){
+    var sel = F.dep.indexOf(d)!==-1;
+    html+='<span class="leg-item'+(sel?' sel':'')+'" onclick="toggleDep(\''+d+'\')" title="Filtrar por '+d+'">'
+        +'<span class="leg-dot" style="background:'+DEPT_COLORS[d]+'"></span>'+d+'</span>';
+  });
+  // Botão limpar filtros de dep (visível só quando há seleção)
+  if(F.dep.length>0){
+    html+='<button class="leg-clr" onclick="clr(\'dep\')">Limpar departamentos ×</button>';
+  }
+  bar.innerHTML=html;
+}
+function buildAllLegs(){
+  ['indicadores','graficos','evolucao','impressoras'].forEach(buildLeg);
+}
+
+// ── FILTER BAR ────────────────────────────────────────────────────────────────
+var FLBL={imp:'Impressora',dia:'Dia',mes:'Mês',tip:'Tipo',cim:'Colorida'};
+function renderFbar(page){
+  var bar=document.getElementById('fbar-'+page);
+  if(!bar) return;
+  bar.style.display=hasF()?'flex':'none';
+  var chips=document.getElementById('chips-'+page);
+  if(chips){
+    var html='';
+    // Chips de departamentos (cada um separado)
+    F.dep.forEach(function(d){
+      html+='<span class="chip">Depto: <b>'+esc(d)+'</b><button onclick="toggleDep(\''+esc(d)+'\')">×</button></span>';
+    });
+    // Chip de filtro de data
+    if(F.dtIni||F.dtFim){
+      var fmtD=function(s){return s?s.slice(8)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'...';};
+      html+='<span class="chip">Período: <b>'+fmtD(F.dtIni)+' – '+fmtD(F.dtFim)+'</b><button onclick="clearDt()">×</button></span>';
+    }
+    // Chips de outros filtros (exceto dep, dtIni, dtFim)
+    Object.entries(F).filter(function(e){return e[0]!=='dep'&&e[0]!=='dtIni'&&e[0]!=='dtFim'&&e[1]!==null;}).forEach(function(e){
+      var k=e[0],v=e[1];
+      var lbl=k==='dia'?v.slice(8)+'/'+v.slice(5,7)+'/'+v.slice(0,4):v;
+      html+='<span class="chip">'+(FLBL[k]||k)+': <b>'+esc(lbl)+'</b><button onclick="clr(\''+k+'\')">×</button></span>';
+    });
+    chips.innerHTML=html;
+  }
+  var bmap=[['bImp','imp'],['bPro','tip']];
+  bmap.forEach(function(bm){
+    var box=document.getElementById(bm[0]);
+    if(box) box.classList.toggle('hi',!!F[bm[1]]);
+    var btn=document.getElementById('cl'+bm[0].slice(1));
+    if(btn) btn.style.display=F[bm[1]]?'block':'none';
+  });
+  // bDep highlight baseado no dep array
+  var bd=document.getElementById('bDep');
+  if(bd) bd.classList.toggle('hi',F.dep.length>0);
+  var cd=document.getElementById('clDep');
+  if(cd) cd.style.display=F.dep.length>0?'block':'none';
+  var cc=document.getElementById('clCol');
+  if(cc) cc.style.display=F.cim?'block':'none';
+  var ct=document.getElementById('clTmp');
+  if(ct) ct.style.display=!!(F.dia||F.mes)?'block':'none';
+}
+
+// ── AÇÕES DE FILTRO ───────────────────────────────────────────────────────────
+// Seleção múltipla de departamentos
+function toggleDep(d){
+  var idx=F.dep.indexOf(d);
+  if(idx===-1) F.dep.push(d);
+  else F.dep.splice(idx,1);
+  ra();
+}
+// Outros filtros: toggle simples (single-select)
+function toggle(k,v){
+  if(k==='dep'){toggleDep(v);return;}
+  F[k]=(F[k]===v?null:v);
+  ra();
+}
+function clr(k){
+  if(k==='dep') F.dep=[];
+  else F[k]=null;
+  ra();
+}
+function clearAll(){
+  F.imp=null; F.dep=[]; F.dia=null; F.mes=null; F.tip=null; F.cim=null;
+  F.dtIni=null; F.dtFim=null;
+  var ini=document.getElementById('dtIni'); if(ini) ini.value='';
+  var fim=document.getElementById('dtFim'); if(fim) fim.value='';
+  var btn=document.getElementById('dtClrBtn'); if(btn) btn.style.display='none';
+  ra();
+}
+function setDt(k,v){
+  F[k]=v||null;
+  var btn=document.getElementById('dtClrBtn');
+  if(btn) btn.style.display=(F.dtIni||F.dtFim)?'inline-block':'none';
+  ra();
+}
+function clearDt(){
+  F.dtIni=null; F.dtFim=null;
+  var ini=document.getElementById('dtIni'); if(ini) ini.value='';
+  var fim=document.getElementById('dtFim'); if(fim) fim.value='';
+  var btn=document.getElementById('dtClrBtn'); if(btn) btn.style.display='none';
+  ra();
+}
+function st(c){if(TS.c===c)TS.d*=-1;else{TS.c=c;TS.d=-1;}rTbl();}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+function exportCSV(){
+  var d=fi(RAW);
+  var rows=[['Data','Impressora','Departamento','Páginas','Tipo']];
+  d.forEach(function(r){
+    var dt=r.dt.slice(8)+'/'+r.dt.slice(5,7)+'/'+r.dt.slice(0,4);
+    rows.push([dt,'"'+r.impressora.replace(/"/g,'""')+'"','"'+r.dept.replace(/"/g,'""')+'"',r.pages,r.colorida?'Colorida':'P&B']);
+  });
+  var csv=rows.map(function(r){return r.join(',');}).join('\r\n');
+  var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='impressao_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ── GRÁFICO: HEATMAP DIA DA SEMANA ───────────────────────────────────────────
+function rHeat(){
+  var d=fi(RAW);
+  var DOW=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  var DCOL=['#0096C7cc','#0096C7cc','#0096C7cc','#0096C7cc','#0096C7cc','#48CAE455','#48CAE455'];
+  var totals=[0,0,0,0,0,0,0], dayMap={};
+  d.forEach(function(r){
+    var dow=(new Date(r.dt+'T12:00:00').getDay()+6)%7;
+    totals[dow]+=(r.pages||0);
+    dayMap[r.dt]=dow;
+  });
+  var counts=[0,0,0,0,0,0,0];
+  Object.keys(dayMap).forEach(function(k){counts[dayMap[k]]++;});
+  var avgs=totals.map(function(t,i){return counts[i]>0?Math.round(t/counts[i]):0;});
+  mk('cHeat',{
+    type:'bar',
+    data:{labels:DOW,datasets:[{label:'Média páginas/dia',data:avgs,
+      backgroundColor:DCOL,borderColor:DCOL.map(function(c){return c.replace('cc','ff').replace('55','88');}),
+      borderWidth:1,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:20}},
+      plugins:{legend:{display:false},
+        tooltip:Object.assign({},ttOpts,{callbacks:{label:function(c){return ' '+fmt(c.parsed.y)+' págs (média/dia)';}}}),
+        datalabels:{display:true,anchor:'end',align:'end',clip:false,color:'#7aadcc',font:{size:9,weight:'700'},formatter:fmt}},
+      scales:{
+        x:Object.assign({},scaleOpts,{grid:{display:false}}),
+        y:Object.assign({},scaleOpts,{beginAtZero:true,display:false})}}
+  });
+}
+
+// ── RENDER ALL (página atual) ─────────────────────────────────────────────────
+function ra(){
+  buildAllLegs();
+  renderFbar(CURRENT);
+  updateHdrSt();
+  if(CURRENT==='indicadores')    rKPI();
+  else if(CURRENT==='graficos')  {rImp();rDep();rPro();rCol();rHeat();}
+  else if(CURRENT==='evolucao')  rTmp();
+  else if(CURRENT==='impressoras') rTbl();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(function(){
+  var nav=document.querySelectorAll('.nav-item');
+  nav.forEach(function(n){n.style.pointerEvents='none';n.style.opacity='0.4';});
+
+  function applyData(json){
+    RAW=json.data;
+    var sub=document.querySelector('.tb-sub');
+    if(sub) sub.textContent=json.periodo+' · '+json.registros.toLocaleString('pt-BR')+' registros';
+    var foot=document.querySelector('footer');
+    if(foot) foot.textContent='Dashboard de Impressão v3 · '+json.periodo;
+    var allDt=RAW.map(function(r){return r.dt;}).sort();
+    var minDt=allDt[0], maxDt=allDt[allDt.length-1];
+    var ini=document.getElementById('dtIni'), fim=document.getElementById('dtFim');
+    if(ini){ini.min=minDt; ini.max=maxDt;}
+    if(fim){fim.min=minDt; fim.max=maxDt;}
+    nav.forEach(function(n){n.style.pointerEvents='';n.style.opacity='';});
+    buildAllLegs();
+    updateHdrSt();
+  }
+
+  function showErr(msg){
+    var main=document.querySelector('.main');
+    if(main) main.innerHTML='<div style="padding:48px 32px;color:#ff6b6b;font-size:14px;line-height:1.8">Erro ao carregar os dados: '+esc(msg)+'</div>';
+    nav.forEach(function(n){n.style.pointerEvents='';n.style.opacity='';});
+  }
+
+  fetch('https://feb-impressao.vitorcorrea805.workers.dev')
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(applyData)
+    .catch(function(){
+      fetch('data.json')
+        .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+        .then(applyData)
+        .catch(function(err){showErr(err.message);});
+    });
+})();
+</script>
+</body>
+</html>
